@@ -1,50 +1,47 @@
 import random
 
-class Yahtzee:
+class YahtzeeMechanics:
     def __init__(self):
         # Score board respectively: 1s, 2s, 3s, 4s, 5s, 6s, Set, Quads, Fullhouse, Straight, Yahtzee
         self.score_board = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         self.dices = [random.randint(1,6) for _ in range(5)]
-        self.blocked_dices = [False, False, False, False, False]
         self.dices_played = 0
+
+        self.action_to_score = {"1": lambda : self.get_numbers(1), "2": lambda : self.get_numbers(2), 
+                          "3": lambda : self.get_numbers(3), "4": lambda : self.get_numbers(4),
+                          "5": lambda : self.get_numbers(5), "6": lambda : self.get_numbers(6),
+                          "set": lambda : self.get_sets(3), "quads": lambda : self.get_sets(4),
+                          "fullhouse": lambda : self.get_fullhouse(), "straight": lambda : self.get_straight(),
+                          "yahtzee": lambda : self.get_yahtzee()}
 
         print(self.score_board)
         print("\n")
         print(self.dices)
-
-    def hold_dices(self, action = [False, False, False, False, False]):
-        self.blocked_dices = action
 
     def check_state(self):
         print(self.score_board)
         print("\n")
         print(self.dices)
 
-    def roll_dice(self):
+    def roll_dice(self, dice_to_reroll = None):
+        """
+        Roll dice. If no specific dice are given, roll all. [2,3] will roll the third and fourth dice
+        """
         # Can only roll the dices three times
         if self.dices_played < 2:
-            index = 0
-            for blocked_dice in self.blocked_dices:
-                if not blocked_dice:
-                    self.dices[index] = random.randint(1,6)
-                # Update number of rolled dices and the index
-                index += 1
-            self.dices_played += 1
-
+            if dice_to_reroll is None:
+                self.dices = [random.randint(1,6) for _ in range(5)]
+            else:
+                for i in dice_to_reroll:
+                    self.dices[i] = random.randint(1, 6)
+                self.dices_played += 1
             # Show to the user
             print(self.dices)
 
     # Function that will select which score to keep from the score board
     def mark_score(self, action):
-        input_to_score = {"1": lambda : self.get_numbers(1), "2": lambda : self.get_numbers(2), 
-                          "3": lambda : self.get_numbers(3), "4": lambda : self.get_numbers(4),
-                          "5": lambda : self.get_numbers(5), "6": lambda : self.get_numbers(6),
-                          "set": lambda : self.get_sets(3), "quads": lambda : self.get_sets(4),
-                          "fullhouse": lambda : self.get_fullhouse(), "straight": lambda : self.get_straight(),
-                          "yahtzee": lambda : self.get_yahtzee()}
-        
         # If successfully managed to mark in the score board go to next turn
-        if input_to_score[action]() == True:
+        if self.action_to_score[action]() == True:
             self.dices_played = 0
             self.blocked_dices = [False, False, False, False, False]
             self.dices = [random.randint(1,6) for _ in range(5)]
