@@ -52,18 +52,21 @@ class YahtzeeMechanics:
                 print("Game Over!")
                 print(f"Total score: {sum(self.score_board)}")
 
-    # Function that willmake the preview score for each category: [0, 0, 9, ..., 0, 50]
+    # Function that will make the preview score for each category: [0, 0, 9, ..., 0, 50]
     def mark_score(self, action):
         # If successfully managed to mark in the score board go to next turn
-        if self.action_to_score[action]() == True:
-            self.dices_played = 0
-            self.dices = [random.randint(1,6) for _ in range(5)]
+        preview = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for index, category in enumerate(self.action_to_score.keys()):
+            # Only preview unmarked categories
+            if self.score_board[index] != -1:
+                self.dices_played = 0
+                self.dices = [random.randint(1,6) for _ in range(5)]
 
-            if -1 in self.score_board:
-                print(self.dices)
-            else:
-                print("Game Over!")
-                print(f"Total score: {sum(self.score_board)}")
+                if -1 in self.score_board:
+                    print(self.dices)
+                else:
+                    print("Game Over!")
+                    print(f"Total score: {sum(self.score_board)}")
     
     def get_numbers(self, number: int) -> bool:
         if self.score_board[number - 1] == -1:
