@@ -7,12 +7,13 @@ class YahtzeeMechanics:
         self.dices = [random.randint(1,6) for _ in range(5)]
         self.dices_played = 0
 
-        self.action_to_score = {"1": lambda : self.get_numbers(1), "2": lambda : self.get_numbers(2), 
-                          "3": lambda : self.get_numbers(3), "4": lambda : self.get_numbers(4),
-                          "5": lambda : self.get_numbers(5), "6": lambda : self.get_numbers(6),
-                          "set": lambda : self.get_sets(3), "quads": lambda : self.get_sets(4),
-                          "fullhouse": lambda : self.get_fullhouse(), "straight": lambda : self.get_straight(),
-                          "yahtzee": lambda : self.get_yahtzee()}
+# Score categories
+        self.action_to_score = {"1s": lambda : self.get_numbers(1), "2s": lambda : self.get_numbers(2), 
+                          "3s": lambda : self.get_numbers(3), "4s": lambda : self.get_numbers(4),
+                          "5s": lambda : self.get_numbers(5), "6s": lambda : self.get_numbers(6),
+                          "Set": lambda : self.get_sets(3), "Quads": lambda : self.get_sets(4),
+                          "Fullhouse": lambda : self.get_fullhouse(), "Straight": lambda : self.get_straight(),
+                          "Yahtzee": lambda : self.get_yahtzee()}
 
         print(self.score_board)
         print("\n")
@@ -34,7 +35,7 @@ class YahtzeeMechanics:
             else:
                 for i in dice_to_reroll:
                     self.dices[i] = random.randint(1, 6)
-                self.dices_played += 1
+            self.dices_played += 1
             # Show to the user
             print(self.dices)
 
@@ -43,7 +44,6 @@ class YahtzeeMechanics:
         # If successfully managed to mark in the score board go to next turn
         if self.action_to_score[action]() == True:
             self.dices_played = 0
-            self.blocked_dices = [False, False, False, False, False]
             self.dices = [random.randint(1,6) for _ in range(5)]
 
             if -1 in self.score_board:
@@ -52,13 +52,25 @@ class YahtzeeMechanics:
                 print("Game Over!")
                 print(f"Total score: {sum(self.score_board)}")
 
+    # Function that willmake the preview score for each category: [0, 0, 9, ..., 0, 50]
+    def mark_score(self, action):
+        # If successfully managed to mark in the score board go to next turn
+        if self.action_to_score[action]() == True:
+            self.dices_played = 0
+            self.dices = [random.randint(1,6) for _ in range(5)]
+
+            if -1 in self.score_board:
+                print(self.dices)
+            else:
+                print("Game Over!")
+                print(f"Total score: {sum(self.score_board)}")
     
     def get_numbers(self, number: int) -> bool:
         if self.score_board[number - 1] == -1:
             self.score_board[number - 1] = self.dices.count(number) * number
             return True
         else:
-            print(f"{number} is already marked, choose another")
+            print(f"{number}s is already marked, choose another")
             return False
 
     def get_sets(self, number: int) -> bool:
