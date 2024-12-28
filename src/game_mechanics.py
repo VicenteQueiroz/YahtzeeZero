@@ -14,6 +14,9 @@ class YahtzeeMechanics:
                           "Set": lambda : self.get_sets(3), "Quads": lambda : self.get_sets(4),
                           "Fullhouse": lambda : self.get_fullhouse(), "Straight": lambda : self.get_straight(),
                           "Yahtzee": lambda : self.get_yahtzee()}
+        
+        self.action_to_index = {"1s": 0, "2s": 1, "3s": 2, "4s": 3, "5s": 4, "6s": 5,
+                          "Set": 6, "Quads": 7, "Fullhouse": 8, "Straight": 9, "Yahtzee": 10}
 
         print(self.score_board)
         print("\n")
@@ -41,104 +44,84 @@ class YahtzeeMechanics:
 
     # Function that will select which score to keep from the score board
     def mark_score(self, action):
-        # If successfully managed to mark in the score board go to next turn
-        if self.action_to_score[action]() == True:
+        index_to_score = self.action_to_index[action]
+        # You can only mark score in a free slot
+        if self.score_board[index_to_score] == -1:
+            self.score_board[index_to_score] = self.action_to_score[action]()
+            # If successfully managed to mark in the score board go to next turn
             self.dices_played = 0
             self.dices = [random.randint(1,6) for _ in range(5)]
 
-            if -1 in self.score_board:
-                print(self.dices)
-            else:
+            if -1 not in self.score_board:
                 print("Game Over!")
                 print(f"Total score: {sum(self.score_board)}")
+        else:
+            print(f"You already marked in {action}, try another option")
 
     # Function that will make the preview score for each category: [0, 0, 9, ..., 0, 50]
-    def mark_score(self, action):
+    def preview_score(self):
         # If successfully managed to mark in the score board go to next turn
-        preview = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        preview = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for index, category in enumerate(self.action_to_score.keys()):
             # Only preview unmarked categories
-            if self.score_board[index] != -1:
-                self.dices_played = 0
-                self.dices = [random.randint(1,6) for _ in range(5)]
+            if self.score_board[index] == -1:
+                preview[index] = self.action_to_score[category]()
+            else:
+                # For the already marked/scored categories keep the same score
+                preview[index] = self.score_board[index]
 
-                if -1 in self.score_board:
-                    print(self.dices)
-                else:
-                    print("Game Over!")
-                    print(f"Total score: {sum(self.score_board)}")
+        return preview
     
     def get_numbers(self, number: int) -> bool:
-        if self.score_board[number - 1] == -1:
-            self.score_board[number - 1] = self.dices.count(number) * number
-            return True
-        else:
-            print(f"{number}s is already marked, choose another")
-            return False
+        return self.dices.count(number) * number
 
     def get_sets(self, number: int) -> bool:
         """
-        Adds total number of dices for three of a kind (number = 3) and quads (number = 4)
+        Returns the total number of dices for three of a kind (number = 3) and quads (number = 4)
         """
-        if self.score_board[number + 3] == -1:
-            counts = {}
-            self.score_board[number + 3] = 0
-            for x in self.dices:
-                counts[x] = counts.get(x, 0) + 1
-                if counts[x] >= number:
-                    self.score_board[number + 3] = sum(self.dices)
-            return True
-        else:
-            print(f"Set of {number}s is already marked, choose another")
-            return False
+        counts = {}
+        score = 0
+        for x in self.dices:
+            counts[x] = counts.get(x, 0) + 1
+            if counts[x] >= number:
+                score = sum(self.dices)
+        return score
 
     def get_fullhouse(self) -> bool:
         """
-        Adds 25 points if the roll is a Full House (3 of one number, 2 of another)
+        Returns 25 points if the roll is a Full House (3 of one number, 2 of another)
         """
-        if self.score_board[8] == -1:
-            # Count occurrences of each die value
-            counts = {}
-            for x in self.dices:
-                counts[x] = counts.get(x, 0) + 1
+        # Count occurrences of each die value
+        counts = {}
+        for x in self.dices:
+            counts[x] = counts.get(x, 0) + 1
 
-            # Check for a Full House pattern (3+2)
-            for value, count in counts.items():
-                if count == 3:
-                    # Found 3 of a kind, check if there's another value with 2
-                    for other_value, other_count in counts.items():
-                        if other_value != value and other_count == 2:
-                            self.score_board[8] = 25
-                            return True
-            self.score_board[8] = 0
-            return True            
-        else:
-            print(f"Fullhouse is already marked, choose another")
-            return False
+        # Check for a Full House pattern (3+2)
+        for value, count in counts.items():
+            if count == 3:
+                # Found 3 of a kind, check if there's another value with 2
+                for other_value, other_count in counts.items():
+                    if other_value != value and other_count == 2:
+                        return 25
+        return 0
 
 
     def get_straight(self) -> bool:
-        if self.score_board[9] == -1:
-            self.score_board[9] = 0
-            if 2 in self.dices and 3 in self.dices and 4 in self.dices and 5 in self.dices:
-                if 1 in self.dices or 6 in self.dices:
-                    self.score_board[9] = 40
-            return True
-        else:
-            print(f"Straight is already marked, choose another")
-            return False
+        """
+        Returns 40 points if there unordered sequence 1,2,3,4,5 or 2,3,4,5,6 
+        """
+        if 2 in self.dices and 3 in self.dices and 4 in self.dices and 5 in self.dices:
+            if 1 in self.dices or 6 in self.dices:
+                return 40
+        return 0
         
     def get_yahtzee(self):
-        if self.score_board[10] == -1:
-            counts = {}
-            self.score_board[10] = 0
-            for x in self.dices:
-                counts[x] = counts.get(x, 0) + 1
-                if counts[x] == 5:
-                    self.score_board[10] = 50
-            return True
-            
-
-        else:
-            print(f"Yahtzee is already marked, choose another")
-            return False
+        """
+        Returns 50 points if there is a five of a kind regardless of dice value
+        """
+        counts = {}
+        for x in self.dices:
+            counts[x] = counts.get(x, 0) + 1
+            if counts[x] == 5:
+                return 50
+        return 0

@@ -79,6 +79,8 @@ def main():
     dices_rect = {}
     # When we click a dice we want to hold it
     dices_to_reroll = [0, 1, 2, 3, 4] # contains the indexes of the dices to reroll
+    # Preview score (calculate the score for each dice roll)
+    preview_score = yahtzee_game.preview_score()
 
     while running:
         screen.fill(WHITE)  # Clear the screen
@@ -92,6 +94,7 @@ def main():
                 # Check if the "Roll Dice" button is clicked
                 if roll_rect.collidepoint(mouse_x, mouse_y):
                     yahtzee_game.roll_dice(dices_to_reroll)
+                    preview_score = yahtzee_game.preview_score()
                 # Check if the dices are clicked
                 for i, value in enumerate(yahtzee_game.dices):
                     if dices_rect[i].collidepoint(mouse_x, mouse_y):
@@ -107,6 +110,7 @@ def main():
                         category = CATEGORIES[i]
                         yahtzee_game.mark_score(category)
                         dices_to_reroll = [0, 1, 2, 3, 4] # Reset hold dices for next turn
+                        preview_score = yahtzee_game.preview_score() # Reset the preview
                             
         #Draw the scoresheet on the screen
         for i, category in enumerate(CATEGORIES):
@@ -118,7 +122,7 @@ def main():
             # Draw score or placeholder
             score = yahtzee_game.score_board[i]
             if score is -1:
-                score_text = font.render("0", True, GRAY)
+                score_text = font.render(str(preview_score[i]), True, GRAY)
             else:
                 score_text = font.render(str(score), True, GREEN)
             screen.blit(score_text, (x + 100, y))
@@ -126,16 +130,19 @@ def main():
         # Draw the dice
         for i, value in enumerate(yahtzee_game.dices):
             x, y = DICE_POSITIONS[i]
-            text = font.render(str(value), True, WHITE)
-            dices_rect[i] = text.get_rect(center=(x + 50, y + 50))
+            rect = pygame.Rect(x, y, 100, 100)
+            pygame.draw.rect(screen, BLACK, rect, 2)  # Add a border
             if i in dices_to_reroll:
                 pygame.draw.rect(screen, BLUE, (x, y, 100, 100))  # Draw dice as blue rectangle
             else:
                 pygame.draw.rect(screen, RED, (x, y, 100, 100))  # Draw dice as red rectangle
-            screen.blit(text, dices_rect[i])
+            text = font.render(str(value), True, WHITE)
+            text_rect = text.get_rect(center=(x + 50, y + 50))
+            dices_rect[i] = rect
+            screen.blit(text, text_rect)
 
         # Render scoresheet placeholder
-        scoresheet_text = font.render("Scoresheet (Coming Soon)", True, BLACK)
+        scoresheet_text = font.render("Scoresheet", True, BLACK)
         screen.blit(scoresheet_text, (50, 50))
 
         # Render buttons placeholder
