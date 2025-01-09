@@ -18,9 +18,9 @@ class YahtzeeMechanics:
         self.action_to_index = {"1s": 0, "2s": 1, "3s": 2, "4s": 3, "5s": 4, "6s": 5,
                           "Set": 6, "Quads": 7, "Fullhouse": 8, "Straight": 9, "Yahtzee": 10}
 
-        print(self.score_board)
-        print("\n")
-        print(self.dices)
+        # print(self.score_board)
+        # print("\n")
+        # print(self.dices)
 
     def check_state(self):
         print(self.score_board)
@@ -39,8 +39,6 @@ class YahtzeeMechanics:
                 for i in dice_to_reroll:
                     self.dices[i] = random.randint(1, 6)
             self.dices_played += 1
-            # Show to the user
-            print(self.dices)
 
     # Function that will select which score to keep from the score board
     def mark_score(self, action):
