@@ -1,6 +1,7 @@
 import random
 from game_mechanics import YahtzeeMechanics
 from heuristicAI import HeuristicAI
+import argparse
 
 # Assuming `YahtzeeGame` and `HeuristicAI` classes are already implemented.
 
@@ -34,5 +35,9 @@ class YahtzeeSimulator:
         print(f"Low Score: {min(self.scores)}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("bot", help="Choose which bot to play") # TODO add later different arguments for different AIs
+    args = parser.parse_args()
+    print(args.bot)
     simulator = YahtzeeSimulator(num_games=100)
     simulator.run_simulations()
